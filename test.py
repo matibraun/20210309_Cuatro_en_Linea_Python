@@ -1,15 +1,12 @@
-def crearJugador ():
-    name = input('Ingrese el nombre del jugador: ')
-    color = input('Ingrese el color del jugador: ')
-    return {
-        'type': 'SET_PLAYER_NAME_AND_COLOR',
-        'payload': {
-            'name': name,
-            'color': color,
-        }
-    };
+filas = input('Por favor ingrese la cantidad de filas: ');
+columnas = input('Por favor ingrese la cantidad de columnas: ');
+
+while filas.isnumeric() == False or columnas.isnumeric() == False:
+    print ('Los valores ingresados son incorrectos.\n')
+    filas = input('Por favor ingrese la cantidad de filas: ');
+    columnas = input('Por favor ingrese la cantidad de columnas: ');
+
+print (int(filas))
+print (int(columnas))
 
 
-action = crearJugador()
-
-print(action['type'])

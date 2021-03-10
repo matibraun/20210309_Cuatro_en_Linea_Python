@@ -9,7 +9,8 @@ def reducer(state, action):
                 ],
             };
 
-        elif action['type'] == 
+        elif action['type'] == 'SET_BOARD':
+            state['stage'] = 'LoadingBoard'
 
     return state
 
@@ -26,31 +27,45 @@ def crearJugador ():
     };
 
 def get_next_action(state):
-    if not state['players']:
-        return crearJugador();
-    
-    else:
 
-        option = input(
-            '1. Cargar otro jugador\n'
-            '2. Finalizar carga de jugadores\n'
-            );
-
-        while option != '1' and option != '2':
+    if state['stage'] == 'LoadingPlayers':
+        if not state['players']:
+            return crearJugador();
+        
+        else:
 
             option = input(
-                'El ingreso es incorrecto.\n'
                 '1. Cargar otro jugador\n'
                 '2. Finalizar carga de jugadores\n'
                 );
 
-        if option == '1':
-            return crearJugador();
-        
-        if option == '2':
-            return {
-                'type': 'SET_BOARD'
-            };
+            while option != '1' and option != '2':
+
+                option = input(
+                    'El ingreso es incorrecto.\n'
+                    '1. Cargar otro jugador\n'
+                    '2. Finalizar carga de jugadores\n'
+                    );
+
+            if option == '1':
+                return crearJugador();
+            
+            if option == '2':
+                return {
+                    'type': 'SET_BOARD'
+                };
+    
+    if state['stage'] == 'LoadingBoard':
+
+        filas = input('Por favor ingrese la cantidad de filas: ');
+        columnas = input('Por favor ingrese la cantidad de columnas: ');
+
+        while filas.isnumeric() == False or columnas.isnumeric() == False:
+            print ('Los valores ingresados son incorrectos.\n')
+            filas = input('Por favor ingrese la cantidad de filas: ');
+            columnas = input('Por favor ingrese la cantidad de columnas: ');
+
+
     
 
 def render(state):
