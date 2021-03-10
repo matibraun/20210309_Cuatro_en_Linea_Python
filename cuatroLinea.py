@@ -56,12 +56,12 @@ type SetPlayerColorAction = {
 
 def reducer(state, action):
     if state['stage'] == 'LoadingPlayers':
-        if action['type'] == 'SET_PLAYER_NAME':
+        if action['type'] == 'SET_PLAYER_NAME_AND_COLOR':
             return {
                 **state,
                 'players': [
                     *state['players'],
-                    {'name': action['payload']['name'], 'color': None}
+                    {'name': action['payload']['name'], 'color': action['payload']['color']}
                 ],
             }
 
@@ -72,7 +72,7 @@ def render(state):
     # Se ocupa de mostrar el estado actual en pantalla. Es el artista, el que dibuja
     # Por ejemplo, si el estado es playing, dibuja el tablero y el turno.
     # Si el estado es LoadingPlayers, muestra los jugadores ya cargados.
-    players_str = '\n'.join([player['name'] for player in state['players']])
+    players_str = '\n'.join([player['name'] and player['color'] for player in state['players']])
     print(f'El estado es stage: {state["stage"]} players: {players_str}')
 
 
@@ -81,11 +81,13 @@ def get_next_action(state):
     # acciones, dado el estado actual, y segun el numero que elija, pedirle la info 
     # necesaria para completar la accion, y devolver un diccionario con el type y payload
     # correcto
-    name = input('Ponga el nombre')
+    name = input('Ingrese el nombre del jugador')
+    color= input('Ingrese el color')
     return {
-        'type': 'SET_PLAYER_NAME',
+        'type': 'SET_PLAYER_NAME_AND_COLOR',
         'payload': {
             'name': name,
+            'color': color,
         }
     }
 
