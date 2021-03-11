@@ -1,3 +1,28 @@
+def crearJugador ():
+    name = input('Ingrese el nombre del jugador: ')
+    color = input('Ingrese el color del jugador: ')
+    return {
+        'type': 'SET_PLAYER_NAME_AND_COLOR',
+        'payload': {
+            'name': name,
+            'color': color,
+        }
+    }
+
+
+def checkWinner (board):
+    for fila in board:
+        for posicion in fila:
+            if posicion != None and posicion == board[fila + 1][posicion] and posicion == board
+                
+                
+                
+                
+                
+                pass
+
+
+
 def reducer(state, action):
     if state['stage'] == 'LoadingPlayers':
         if action['type'] == 'SET_PLAYER_NAME_AND_COLOR':
@@ -35,18 +60,6 @@ def reducer(state, action):
 
 
     return state
-
-
-def crearJugador ():
-    name = input('Ingrese el nombre del jugador: ')
-    color = input('Ingrese el color del jugador: ')
-    return {
-        'type': 'SET_PLAYER_NAME_AND_COLOR',
-        'payload': {
-            'name': name,
-            'color': color,
-        }
-    }
 
 
 
@@ -116,13 +129,13 @@ def get_next_action(state):
         
         newBoard = state['board'].copy()
 
-        for numeroFila in range(len(newBoard), 0):
+        for numeroFila in reversed(range(0, len(newBoard))):
 
             if newBoard[numeroFila][int(jugada) - 1] == None:
                 newBoard[numeroFila][int(jugada) - 1] = state['turn']
                 break
         
-        newTurn = (state['turn'] + 1) % len(state['board'][0])
+        newTurn = (state['turn'] + 1) % len(state['players'])
 
         return {
             'type': 'CONTINUE_PLAYING',
