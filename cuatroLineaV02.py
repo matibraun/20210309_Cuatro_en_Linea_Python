@@ -7,10 +7,32 @@ def reducer(state, action):
                     *state['players'],
                     {'name': action['payload']['name'], 'color': action['payload']['color']}
                 ],
-            };
+            }
 
-        elif action['type'] == 'SET_BOARD':
-            state['stage'] = 'LoadingBoard'
+        if action['type'] == 'FINISHED_LOADING_PLAYERS':
+            return {
+                'stage': 'LoadingBoard',
+                'players': state['players'],
+            }
+
+    if state['stage'] == 'LoadingBoard':
+        if action['type'] == 'FINISHED_LOADING_AND_CREATING_BOARD':
+            return {
+                'stage': 'Playing',
+                'players': state['players'],
+                'board': action['payload']['tablero'],
+                'turn': 0
+            }
+    
+    if state['stage'] == 'Playing':
+        if action['type'] == 'CONTINUE_PLAYING':
+            return {
+                'stage': 'Playing',
+                'players': state['players'],
+                'board': action['payload']['newBoard'],
+                'turn': action['payload']['newTurn'],
+            }   
+
 
     return state
 
@@ -24,7 +46,10 @@ def crearJugador ():
             'name': name,
             'color': color,
         }
-    };
+    }
+
+
+
 
 def get_next_action(state):
 
@@ -52,26 +77,76 @@ def get_next_action(state):
             
             if option == '2':
                 return {
-                    'type': 'SET_BOARD'
+                    'type': 'FINISHED_LOADING_PLAYERS'
                 };
     
     if state['stage'] == 'LoadingBoard':
 
-        filas = input('Por favor ingrese la cantidad de filas: ');
-        columnas = input('Por favor ingrese la cantidad de columnas: ');
+        cantFilas = input('Por favor ingrese la cantidad de filas: ')
+        cantColumnas = input('Por favor ingrese la cantidad de columnas: ')
 
-        while filas.isnumeric() == False or columnas.isnumeric() == False:
+        while cantFilas.isnumeric() == False or cantColumnas.isnumeric() == False:
             print ('Los valores ingresados son incorrectos.\n')
-            filas = input('Por favor ingrese la cantidad de filas: ');
-            columnas = input('Por favor ingrese la cantidad de columnas: ');
+            cantFilas = input('Por favor ingrese la cantidad de filas: ')
+            cantColumnas = input('Por favor ingrese la cantidad de columnas: ')
 
+        filaProvisoria = []
+        tablero = []
+
+        for x in range(int(cantColumnas)):
+            filaProvisoria.append(None)
+
+        for x in range(int(cantFilas)):
+            tablero.append(filaProvisoria.copy())
+
+        return {
+            'type': 'FINISHED_LOADING_AND_CREATING_BOARD',
+            'payload': {
+                'tablero': tablero
+                }
+        }
 
     
+    if state['stage'] == 'Playing':
+        jugada = input('Por favor ingrese el nro de la columna en la que desea poner su ficha: ')
+
+        while jugada.isnumeric() == False or int(jugada) <= 0 or int(jugada) > len(state['board'][0]):
+            print('El ingreso es incorrecto.')
+            jugada = input('Por favor ingrese el nro de la columna en la que desea poner su ficha: ')
+        
+        newBoard = state['board'].copy()
+
+        for numeroFila in range(len(newBoard), 0):
+
+            if newBoard[numeroFila][int(jugada) - 1] == None:
+                newBoard[numeroFila][int(jugada) - 1] = state['turn']
+                break
+        
+        newTurn = (state['turn'] + 1) % len(state['board'][0])
+
+        return {
+            'type': 'CONTINUE_PLAYING',
+            'payload': {
+                'newBoard': newBoard,
+                'newTurn': newTurn,
+            }
+
+        }
+
 
 def render(state):
     if state['stage'] == 'LoadingPlayers':
-        print(*state['players'], sep = "\n");
+        print(*state['players'], sep = "\n")
 
+    if state['stage'] == 'LoadingBoard':
+        print(*state['players'], sep = "\n")
+    
+    if state['stage'] == 'Playing':
+        print(state['players'][state['turn']]['name'])
+        for i in range(0, len(state['board'][0])):
+            print(f'{i + 1}. Columna {i + 1}')
+
+        print(*state['board'], sep='\n')
 
 
 state = {
@@ -80,6 +155,6 @@ state = {
 }
 
 while True:
-    print(render(state))
+    render(state)
     action = get_next_action(state)
     state = reducer(state, action)

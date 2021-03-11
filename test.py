@@ -1,12 +1,8 @@
-filas = input('Por favor ingrese la cantidad de filas: ');
-columnas = input('Por favor ingrese la cantidad de columnas: ');
-
-while filas.isnumeric() == False or columnas.isnumeric() == False:
-    print ('Los valores ingresados son incorrectos.\n')
-    filas = input('Por favor ingrese la cantidad de filas: ');
-    columnas = input('Por favor ingrese la cantidad de columnas: ');
-
-print (int(filas))
-print (int(columnas))
-
-
+turno = 0
+jugadores = ['ju1', 'ju2', 'ju3', 'ju4']
+print(jugadores[turno])
+while True:
+    input('pres enter para prox turno')
+    turno += 1
+    print (jugadores[turno % len(jugadores)])
+    
