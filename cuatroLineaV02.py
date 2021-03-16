@@ -232,7 +232,6 @@ def get_next_action(state):
                 state['board'][numeroFila][int(jugada) - 1] = state['players'][state['turn']]['name']
                 break
         
-        # newHistoricBoards = [state['historicBoards']].append(state['board']) 
         
         newTurn = (state['turn'] + 1) % len(state['players'])
 
@@ -323,8 +322,7 @@ def render(state):
         printPlayersName(state['players'])
     
     if state['stage'] == 'Playing':
-        print('Es el turno de:')
-        print(state['players'][state['turn']]['name'])
+        print(f"Es el turno de {state['players'][state['turn']]['name']}")
         for i in range(0, len(state['board'][0])):
             print(f'{i + 1}. Columna {i + 1}')
 
@@ -356,7 +354,7 @@ def render(state):
     if state['stage'] == 'AfterGameOptions':
         printBoard(state['board'])
 
-        
+
     if state['stage'] == 'ClosingApp':
         print("Gracias por jugar 4 en linea")
         printPlayersName(state['players'])
