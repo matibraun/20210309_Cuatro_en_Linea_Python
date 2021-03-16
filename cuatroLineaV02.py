@@ -1,7 +1,30 @@
 import time
 import os
 
+def createBoard():
+    cantFilas = input('Por favor ingrese la cantidad de filas: ')
+    cantColumnas = input('Por favor ingrese la cantidad de columnas: ')
+
+    while cantFilas.isnumeric() == False or cantColumnas.isnumeric() == False or int(cantFilas) < 4 or int(cantColumnas) < 4:
+        print ('Los valores ingresados son incorrectos.\n')
+        cantFilas = input('Por favor ingrese la cantidad de filas: ')
+        cantColumnas = input('Por favor ingrese la cantidad de columnas: ')
+
+    filaProvisoria = []
+    board = []
+
+    for x in range(int(cantColumnas)):
+        filaProvisoria.append(None)
+
+    for x in range(int(cantFilas)):
+        board.append(filaProvisoria.copy())
+
+    return board
+
+
+
 def crearJugador ():
+    os.system('cls') 
     name = input('Ingrese el nombre del jugador: ')
     color = input('Ingrese el color del jugador: ')
     return {
@@ -37,11 +60,18 @@ def checkIfBoardFull(board):
     if None not in board[0]:
         return True
 
+def printPlayersName(playersList):
+    print('\n'.join([str(i['name']) for i in playersList]))
+
+def printBoard(board):
+    print('\n'.join([str(i) for i in board]))
+
 def displayHistoricBoards(historicBoards):
     for board in historicBoards:
         os.system('cls') 
         print('\n'.join([str(line) for line in board]))
         time.sleep(1.3)
+
 
 
 def reducer(state, action):
@@ -69,7 +99,6 @@ def reducer(state, action):
                 'stage': 'Playing',
                 'players': state['players'],
                 'board': action['payload']['board'],
-                # 'historicBoards': action['payload']['board'].copy(),
                 'turn': 0,
             }
 
@@ -80,7 +109,6 @@ def reducer(state, action):
                 'stage': 'Playing',
                 'players': state['players'],
                 'board': action['payload']['newBoard'],
-                # 'historicBoards': action['payload']['newHistoricBoards'],
                 'turn': action['payload']['newTurn'],
             }   
 
@@ -90,7 +118,6 @@ def reducer(state, action):
                 'stage': 'EndedWithWinner',
                 'players': state['players'],
                 'board': action['payload']['newBoard'],
-                # 'historicBoards': action['payload']['newHistoricBoards'],
                 'turn': action['payload']['turn'],
                 'message': 'el ganador es ',
             }
@@ -101,11 +128,9 @@ def reducer(state, action):
                 'stage': 'EndedWithoutWinner',
                 'players': state['players'],
                 'board': action['payload']['newBoard'],
-                # 'historicBoards': action['payload']['newHistoricBoards'],
                 'turn': action['payload']['turn'],
                 'message': 'el ganador es ',
             }
-
 
 
     if state['stage'] == 'EndedWithWinner' or state['stage'] == 'EndedWithoutWinner':
@@ -114,7 +139,6 @@ def reducer(state, action):
                 'stage': 'AfterGameOptions',
                 'players': state['players'],
                 'board': state['board'],
-                # 'historicBoards': state['historicBoards'],
             }
 
 
@@ -125,7 +149,6 @@ def reducer(state, action):
                 'stage': 'AfterGameOptions',
                 'players': state['players'],
                 'board': state['board'],
-                # 'historicBoards': state['historicBoards'],
             }
 
         if action['type'] == 'REMATCH':
@@ -133,7 +156,6 @@ def reducer(state, action):
                 'stage': 'Playing',
                 'players': state['players'],
                 'board': state['board'],
-                # 'historicBoards': [],
                 'turn': 0
             }
     
@@ -148,8 +170,6 @@ def reducer(state, action):
                 'stage': 'ClosingApp',
                 'players': state['players'],
             }
-
-
 
     return state
 
@@ -187,27 +207,10 @@ def get_next_action(state):
     
     if state['stage'] == 'LoadingBoard':
 
-        cantFilas = input('Por favor ingrese la cantidad de filas: ')
-        cantColumnas = input('Por favor ingrese la cantidad de columnas: ')
-
-        while cantFilas.isnumeric() == False or cantColumnas.isnumeric() == False or int(cantFilas) < 4 or int(cantColumnas) < 4:
-            print ('Los valores ingresados son incorrectos.\n')
-            cantFilas = input('Por favor ingrese la cantidad de filas: ')
-            cantColumnas = input('Por favor ingrese la cantidad de columnas: ')
-
-        filaProvisoria = []
-        board = []
-
-        for x in range(int(cantColumnas)):
-            filaProvisoria.append(None)
-
-        for x in range(int(cantFilas)):
-            board.append(filaProvisoria.copy())
-
         return {
             'type': 'FINISHED_LOADING_AND_CREATING_BOARD',
             'payload': {
-                'board': board,
+                'board': createBoard(),
                 }
         }
 
@@ -238,7 +241,6 @@ def get_next_action(state):
                 'type': 'THERE_IS_A_WINNER',
                 'payload': {
                     'newBoard': state['board'],
-                    # 'newHistoricBoards': newHistoricBoards,
                     'turn': state['turn'],
                 }
 
@@ -249,7 +251,6 @@ def get_next_action(state):
                 'type': 'GAME_FINISHED_WITHOUT_WINNER',
                 'payload': {
                     'newBoard': state['board'],
-                    # 'newHistoricBoards': newHistoricBoards,
                     'turn': state['turn'],
                 }
 
@@ -260,7 +261,6 @@ def get_next_action(state):
                 'type': 'CONTINUE_PLAYING',
                 'payload': {
                     'newBoard': state['board'],
-                    # 'newHistoricBoards': newHistoricBoards,
                     'newTurn': newTurn,
                 }
 
@@ -313,43 +313,53 @@ def get_next_action(state):
 
 
 
-
-
 def render(state):
     if state['stage'] == 'LoadingPlayers':
-        print(*state['players'], sep = "\n")
+        print('Los jugadores cargados al momento son:')
+        printPlayersName(state['players'])
 
     if state['stage'] == 'LoadingBoard':
-        print(*state['players'], sep = "\n")
+        print('Los jugadores son:')
+        printPlayersName(state['players'])
     
     if state['stage'] == 'Playing':
+        print('Es el turno de:')
         print(state['players'][state['turn']]['name'])
         for i in range(0, len(state['board'][0])):
             print(f'{i + 1}. Columna {i + 1}')
 
-        print(*state['board'], sep='\n')
+        printBoard(state['board'])
 
     if state['stage'] == 'EndedWithWinner':
         print(f"El ganador es {state['players'][state['turn']]['name']}!!!!!!!")
+        time.sleep(1.3)
         print("Los jugadores fueron:")
-        print('\n'.join([str(i['name']) for i in state['players']]))
+        printPlayersName(state['players'])
+        time.sleep(1.3)
         print(f"El tablero completo es el siguiente:")
-        print('\n'.join([str(i) for i in state['board']]))
-
+        printBoard(state['board'])
+        time.sleep(1.3)
+        input('Presione Enter para continuar')
 
     if state['stage'] == 'EndedWithoutWinner':
         print("El juego ha finalizado sin ningun ganador")
+        time.sleep(1.3)
         print("Los jugadores fueron:")
-        print('\n'.join([str(i['name']) for i in state['players']]))
+        printPlayersName(state['players'])
+        time.sleep(1.3)
         print(f"El tablero completo es el siguiente:")
-        print('\n'.join([str(i) for i in state['board']]))
+        printBoard(state['board'])
+        time.sleep(1.3)
+        input('Presione Enter para continuar')
+
 
     if state['stage'] == 'AfterGameOptions':
-        pass
+        printBoard(state['board'])
 
+        
     if state['stage'] == 'ClosingApp':
         print("Gracias por jugar 4 en linea")
-        print('\n'.join([str(i['name']) for i in state['players']]))
+        printPlayersName(state['players'])
         exit()
 
 
@@ -360,6 +370,7 @@ state = {
 }
 
 while True:
+    os.system('cls') 
     render(state)
     action = get_next_action(state)
     state = reducer(state, action)
