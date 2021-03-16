@@ -1,5 +1,6 @@
 import time
 import os
+import copy
 
 def createBoard():
     cantFilas = input('Por favor ingrese la cantidad de filas: ')
@@ -99,7 +100,19 @@ def reducer(state, action):
                 'stage': 'Playing',
                 'players': state['players'],
                 'board': action['payload']['board'],
+                'historicBoards': [action['payload']['board'][:]],
                 'turn': 0,
+            }
+    
+    if state['stage'] == 'AfterGameOptions':
+        if action['type'] == 'REMATCH':
+            return {
+                'stage': 'Playing',
+                'players': state['players'],
+                'board': action['payload']['historicBoards'][0],
+                'historicBoards': [action['payload']['historicBoards'][0][:]],
+                'turn': 0,
+
             }
 
 
@@ -109,6 +122,7 @@ def reducer(state, action):
                 'stage': 'Playing',
                 'players': state['players'],
                 'board': action['payload']['newBoard'],
+                'historicBoards': [*state['historicBoards'], action['payload']['newBoard'][:]],
                 'turn': action['payload']['newTurn'],
             }   
 
@@ -118,6 +132,7 @@ def reducer(state, action):
                 'stage': 'EndedWithWinner',
                 'players': state['players'],
                 'board': action['payload']['newBoard'],
+                'historicBoards': state['historicBoards'],
                 'turn': action['payload']['turn'],
                 'message': 'el ganador es ',
             }
@@ -128,6 +143,7 @@ def reducer(state, action):
                 'stage': 'EndedWithoutWinner',
                 'players': state['players'],
                 'board': action['payload']['newBoard'],
+                'historicBoards': state['historicBoards'],
                 'turn': action['payload']['turn'],
                 'message': 'el ganador es ',
             }
@@ -139,16 +155,19 @@ def reducer(state, action):
                 'stage': 'AfterGameOptions',
                 'players': state['players'],
                 'board': state['board'],
+                'historicBoards': state['historicBoards'],
             }
 
 
     
     if state['stage'] == 'AfterGameOptions':
+        
         if action['type'] == 'REVIEW_GAME':
             return {
-                'stage': 'AfterGameOptions',
+                'stage': 'ReviewGame',
                 'players': state['players'],
                 'board': state['board'],
+                'historicBoards': state['historicBoards'],
             }
 
         if action['type'] == 'REMATCH':
@@ -156,7 +175,8 @@ def reducer(state, action):
                 'stage': 'Playing',
                 'players': state['players'],
                 'board': state['board'],
-                'turn': 0
+                'historicBoards': state['historicBoards'],
+                'turn': 0,
             }
     
         if action['type'] == 'NEW_GAME':
@@ -169,6 +189,14 @@ def reducer(state, action):
             return {
                 'stage': 'ClosingApp',
                 'players': state['players'],
+            }
+
+    if state['stage'] == 'ReviewGame':
+        return {
+                'stage': 'AfterGameOptions',
+                'players': state['players'],
+                'board': state['board'],
+                'historicBoards': state['historicBoards'],
             }
 
     return state
@@ -298,6 +326,10 @@ def get_next_action(state):
         if option == '2':
             return {
                 'type': 'REMATCH',
+                'payload': {
+                    'board': state['board'],
+                    'historicBoards': state['historicBoards'],
+                }
             }
 
         if option == '3':
@@ -351,8 +383,8 @@ def render(state):
         input('Presione Enter para continuar')
 
 
-    if state['stage'] == 'AfterGameOptions':
-        printBoard(state['board'])
+    if state['stage'] == 'ReviewGame':
+        displayHistoricBoards(state['historicBoards'])
 
 
     if state['stage'] == 'ClosingApp':
