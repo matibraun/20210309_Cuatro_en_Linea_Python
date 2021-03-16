@@ -1,3 +1,6 @@
+import time
+import os
+
 def crearJugador ():
     name = input('Ingrese el nombre del jugador: ')
     color = input('Ingrese el color del jugador: ')
@@ -33,6 +36,13 @@ def checkWinner(board):
 def checkIfBoardFull(board):
     if None not in board[0]:
         return True
+
+def displayHistoricBoards(historicBoards):
+    for board in historicBoards:
+        os.system('cls') 
+        print('\n'.join([str(line) for line in board]))
+        time.sleep(1.3)
+
 
 def reducer(state, action):
     if state['stage'] == 'LoadingPlayers':
@@ -321,14 +331,16 @@ def render(state):
 
     if state['stage'] == 'EndedWithWinner':
         print(f"El ganador es {state['players'][state['turn']]['name']}!!!!!!!")
-        print(f"Los jugadores fueron {state['players']}")
+        print("Los jugadores fueron:")
+        print('\n'.join([str(i['name']) for i in state['players']]))
         print(f"El tablero completo es el siguiente:")
         print('\n'.join([str(i) for i in state['board']]))
 
 
     if state['stage'] == 'EndedWithoutWinner':
         print("El juego ha finalizado sin ningun ganador")
-        print(f"Los jugadores fueron {state['players']}")
+        print("Los jugadores fueron:")
+        print('\n'.join([str(i['name']) for i in state['players']]))
         print(f"El tablero completo es el siguiente:")
         print('\n'.join([str(i) for i in state['board']]))
 
